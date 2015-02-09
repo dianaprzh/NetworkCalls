@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="getting_repos_for_user" type="id">Getting repos for user %s.</item>
+</resources>
