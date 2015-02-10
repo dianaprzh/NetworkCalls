@@ -5,19 +5,25 @@
               android:orientation="vertical"
               tools:context=".GithubReposActivity$PlaceholderFragment">
 
-    <EditText android:id="@+id/edit_text_tag"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:hint="@string/edit_text_tag_hint"/>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <TextView android:id="@+id/text_view_popularity_tag"
-              android:layout_width="match_parent"
-              android:layout_height="0dp"
-              android:layout_weight="1"/>
+        <EditText android:id="@+id/edit_text_tag_name"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:hint="@string/edit_text_tag_hint"
+                  android:layout_weight="1"/>
 
-    <Button android:id="@+id/button_get_popularity_tag"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/button_get_popularity_tag" />
+        <Button android:id="@+id/button_get_popularity_tag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/button_get_popularity_tag" />
+    </LinearLayout>
+
+    <ListView android:id="@android:id/list"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
 
 </LinearLayout>
