@@ -4,7 +4,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,51 +23,50 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class GithubReposFragment extends Fragment {
+public class TagPopularityFragment extends Fragment {
 
-    final static String LOG_TAG = GithubReposFragment.class.getSimpleName();
+    final static String LOG_TAG = TagPopularityFragment.class.getSimpleName();
 
-    EditText mEditTextUsername;
-    TextView mTextViewRepos;
+    EditText mEditTextTag;
+    TextView mTextViewPopularityTag;
 
-    public GithubReposFragment() {
+    public TagPopularityFragment() {
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_github_repos, container, false);
-        mEditTextUsername = (EditText)rootView.findViewById(R.id.edit_text_username);
-        mTextViewRepos = (TextView)rootView.findViewById(R.id.text_view_repos);
-        Button buttonGetRepos =(Button)rootView.findViewById(R.id.button_get_repos);
+        View rootView = inflater.inflate(R.layout.fragment_tag_popularity, container, false);
+        mEditTextTag = (EditText)rootView.findViewById(R.id.edit_text_tag);
+        mTextViewPopularityTag = (TextView)rootView.findViewById(R.id.text_view_popularity_tag);
+        Button buttonGetRepos =(Button)rootView.findViewById(R.id.button_get_popularity_tag);
         buttonGetRepos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String username = mEditTextUsername.getText().toString();
+                String tag = mEditTextTag.getText().toString();
                // String message = String.format(getString(R.id.getting_repos_for_user));
                 //Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
-                new FetchReposTask().execute(username);
+                new FetchReposTask().execute(tag);
             }
         });
         return rootView;
     }
 
-    private URL constructURLQuery(String username) throws MalformedURLException {
-        final String GITHUB_BASE_URL = "api.github.com";
-        final String USERS_PATH = "users";
-        final String REPOS_ENDPOINT = "repos";
+    private URL constructURLQuery(String tag) throws MalformedURLException {
+        final String INSTAGRAM_BASE_URL = "api.instagram.com";
 
         Uri.Builder builder = new Uri.Builder();
-        builder.scheme("https").authority(GITHUB_BASE_URL)
-                .appendPath(USERS_PATH)
-                .appendPath(username)
-                .appendPath(REPOS_ENDPOINT);
+        builder.scheme("https").authority(INSTAGRAM_BASE_URL)
+                .appendPath("v1")
+                .appendPath("tags")
+                .appendPath("search")
+                .appendQueryParameter("q", tag)
+                .appendQueryParameter("access_token","845261011.1677ed0.462889c292eb4082b4321789a73e0219");
         Uri uri = builder.build();
         Log.d(LOG_TAG, "Built URI:" + uri.toString());
         return new URL(uri.toString());
@@ -90,38 +87,45 @@ public class GithubReposFragment extends Fragment {
     }
 
     private String parseResponse(String response){
-        final String REPO_NAME = "name";
-        List<String> repos = new ArrayList<>();
+        final String TAG_NAME = "name";
+        final String POPULARITY = "media_count";
+        HashMap<String, String> tagsPopularity = new HashMap<>();
+        response = response.replace("{\"meta\":{\"code\":200},\"data\":", "");
+        response = response.replace("]}", "]");
         try {
             JSONArray responseJsonArray = new JSONArray(response);
             JSONObject object;
             for (int i=0; i < responseJsonArray.length(); i++){
                 object = responseJsonArray.getJSONObject(i);
-                repos.add(object.getString(REPO_NAME));
+                tagsPopularity.put(object.getString(TAG_NAME), object.getString(POPULARITY));
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return TextUtils.join(", ", repos);
+        StringBuilder string = new StringBuilder();
+        for(String key : tagsPopularity.keySet()){
+            string.append(key).append(": "+tagsPopularity.get(key)).append("\n");
+        }
+        return string.toString();
     }
 
     class FetchReposTask extends AsyncTask<String, Void, String>{
 
         @Override
         protected String doInBackground(String... params) {
-            String username;
-            String listOfRepos = "";
+            String tag;
+            String listOfTags = "";
             if(params.length > 0){
-                username = params[0];
+                tag = params[0];
             }else{
-                username = "octocat";
+                tag = "snowy";
             }
             try {
-                URL url = constructURLQuery(username);
+                URL url = constructURLQuery(tag);
                 HttpURLConnection httpConnection = (HttpURLConnection)url.openConnection();
                 try{
                     String response = readFullResponse(httpConnection.getInputStream());
-                    listOfRepos = parseResponse(response);
+                    listOfTags = parseResponse(response);
                 }   catch (IOException e) {
                     e.printStackTrace();
                 }   finally {
@@ -130,13 +134,13 @@ public class GithubReposFragment extends Fragment {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return listOfRepos;
+            return listOfTags;
         }
 
         @Override
         protected void onPostExecute(String response) {
             super.onPostExecute(response);
-            mTextViewRepos.setText(response);
+            mTextViewPopularityTag.setText(response);
         }
     }
 

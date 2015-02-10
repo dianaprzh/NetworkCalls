@@ -7,15 +7,15 @@ import android.view.MenuItem;
 
 
 
-public class GithubReposActivity extends ActionBarActivity {
+public class TagPopularityActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_github_repos);
+        setContentView(R.layout.activity_tag_popularity);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new GithubReposFragment())
+                    .add(R.id.container, new TagPopularityFragment())
                     .commit();
         }
     }
